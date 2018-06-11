@@ -261,8 +261,18 @@ void Modbus::writeMultipleRegisters(byte* frame,word startreg, word numoutputs, 
         }
     }
 
+	word val;
+	word i = 0;
+	while(numoutputs--)
+	{
+		val = (uint16_t)_frame[7 + (i * 2)] << 8 | (uint16_t)_frame[8 + (i * 2)];
+		this->Hreg(startreg + i, val);
+		i++;
+	}
+
     //Clean frame buffer
     free(_frame);
+
 	_len = 5;
     _frame = (byte *) malloc(_len);
     if (!_frame) {
@@ -275,14 +285,6 @@ void Modbus::writeMultipleRegisters(byte* frame,word startreg, word numoutputs, 
     _frame[2] = startreg & 0x00FF;
     _frame[3] = numoutputs >> 8;
     _frame[4] = numoutputs & 0x00FF;
-
-    word val;
-    word i = 0;
-	while(numoutputs--) {
-        val = (word)frame[6+i*2] << 8 | (word)frame[7+i*2];
-        this->Hreg(startreg + i, val);
-        i++;
-	}
 
     _reply = MB_REPLY_NORMAL;
 }
